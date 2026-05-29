@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mental Models — Bộ Công Cụ Tư Duy</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF7F2;
+    --paper: #F3EDE3;
+    --ink: #1C1A17;
+    --ink-soft: #4A4640;
+    --ink-muted: #8C8680;
+    --accent: #C0392B;
+    --accent-soft: #E8D5D3;
+    --gold: #B8860B;
+    --gold-soft: #F0E8C8;
+    --teal: #2E7D6B;
+    --teal-soft: #D0EBE5;
+    --navy: #1B3A6B;
+    --navy-soft: #D0D9EC;
+    --violet: #6B3A8C;
+    --violet-soft: #E5D5F0;
+    --rust: #A0522D;
+    --rust-soft: #EDD9CC;
+    --forest: #2D5A27;
+    --forest-soft: #D5E8D0;
+    --border: #DDD5C8;
+    --shadow: rgba(28,26,23,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 60px 40px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 200px;
+    width: 200px; height: 200px;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .header-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  header h1 em { color: var(--gold); font-style: italic; }
+  .header-sub {
+    font-size: 16px;
+    color: rgba(250,247,242,0.6);
+    max-width: 560px;
+    line-height: 1.65;
+    margin-bottom: 40px;
+  }
+  .header-stats {
+    display: flex; gap: 40px; flex-wrap: wrap;
+  }
+  .stat { display: flex; flex-direction: column; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .stat-label {
+    font-size: 12px;
+    color: rgba(250,247,242,0.5);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .controls-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.4;
+    font-size: 14px;
+  }
+  #searchInput {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #searchInput:focus { border-color: var(--ink); }
+  #searchInput::placeholder { color: var(--ink-muted); }
+
+  .filter-pills {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .pill {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .pill:hover { border-color: var(--ink); color: var(--ink); }
+  .pill.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--cream);
+  }
+
+  /* ── RESULT COUNT ── */
+  .result-bar {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .result-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 0.5px;
+  }
+  .result-count span { color: var(--ink); font-weight: 500; }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  /* ── CATEGORY SECTION ── */
+  .category-section {
+    margin-bottom: 56px;
+  }
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+  }
+  .cat-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .category-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .category-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    margin-left: auto;
+    letter-spacing: 1px;
+  }
+
+  /* ── MODEL GRID ── */
+  .models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── MODEL CARD ── */
+  .model-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .model-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .model-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow);
+    border-color: transparent;
+  }
+  .model-card:hover::before { opacity: 1; }
+
+  .model-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .model-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .model-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,26,23,0.6);
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cream);
+    border-radius: 16px;
+    max-width: 580px;
+    width: 100%;
+    padding: 40px;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: none; border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--ink-muted);
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: var(--border); color: var(--ink); }
+  .modal-cat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .modal-body {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+  }
+  .modal-example {
+    background: var(--paper);
+    border-left: 3px solid var(--gold);
+    padding: 16px 18px;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .modal-example strong { color: var(--ink); font-style: normal; font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 6px; }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--ink-muted);
+    display: none;
+  }
+  .empty.show { display: block; }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 40px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-muted);
+    background: var(--paper);
+  }
+  footer a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--border); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    header { padding: 40px 20px; }
+    .controls { padding: 16px 20px; }
+    main { padding: 0 20px 60px; }
+    .result-bar { padding: 16px 20px 8px; }
+    .models-grid { grid-template-columns: 1fr; }
+    .modal { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">🧠 Farnam Street · Bộ Công Cụ Tư Duy</div>
+    <h1>Mental<br><em>Models</em></h1>
+    <p class="header-sub">Hơn 100 mô hình tư duy được phân loại theo lĩnh vực — từ triết học, kinh tế, tâm lý học đến khoa học và ra quyết định.</p>
+    <div class="header-stats">
+      <div class="stat"><span class="stat-num" id="totalCount">109</span><span class="stat-label">Mental Models</span></div>
+      <div class="stat"><span class="stat-num">9</span><span class="stat-label">Lĩnh Vực</span></div>
+      <div class="stat"><span class="stat-num">∞</span><span class="stat-label">Ứng Dụng</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Tìm mental model…" autocomplete="off">
+    </div>
+    <div class="filter-pills" id="filterPills">
+      <button class="pill active" data-cat="all">Tất cả</button>
+    </div>
+  </div>
+</div>
+
+<div class="result-bar">
+  <div class="result-count">Hiển thị <span id="shownCount">109</span> / 109 models</div>
+</div>
+
+<main id="mainContent"></main>
+
+<div class="empty" id="emptyState">
+  <div class="empty-icon">🔭</div>
+  <h3>Không tìm thấy kết quả</h3>
+  <p>Thử từ khóa khác hoặc chọn danh mục khác.</p>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<footer>
+  Được lấy cảm hứng từ <a href="https://fs.blog/mental-models/" target="_blank">Farnam Street · fs.blog</a> · Tự làm với HTML thuần
+</footer>
+
+<script>
+const CATEGORIES = [
+  {
+    id: "thinking",
+    name: "Tư Duy & Lý Luận",
+    icon: "🧩",
+    color: "#1B3A6B",
+    bg: "#D0D9EC",
+    models: [
+      { name: "First Principles Thinking", desc: "Phân tích vấn đề về những sự thật cơ bản nhất, không dựa vào giả định hay tương đồng.", example: "Elon Musk dùng để tái nghĩ pin xe điện — thay vì mua pin theo giá thị trường, ông hỏi: pin gồm những gì? Cobalt, nickel, carbon… mua nguyên liệu thô thì giá bao nhiêu?" },
+      { name: "Second-Order Thinking", desc: "Suy nghĩ về hậu quả của hậu quả — không chỉ tác động ngay lập tức mà còn tác động tiếp theo.", example: "Mở thêm đường cao tốc → ban đầu giảm tắc nghẽn → nhưng lâu dài khuyến khích lái xe nhiều hơn → lại tắc nghẽn hơn (Induced demand)." },
+      { name: "Inversion", desc: "Thay vì hỏi 'làm thế nào để thành công?', hãy hỏi 'làm thế nào để thất bại?' rồi tránh điều đó.", example: "Charlie Munger: 'Hãy cho tôi biết bạn sẽ chết ở đâu, để tôi không đến đó.'" },
+      { name: "Occam's Razor", desc: "Với các giải thích cạnh tranh nhau, chọn giải thích đơn giản nhất — ít giả định nhất thường đúng nhất.", example: "Xe không nổ máy: Occam's Razor gợi ý kiểm tra ắc-quy trước, không phải ngay lập tức nghĩ đến vấn đề phức tạp." },
+      { name: "Hanlon's Razor", desc: "Đừng quy hành động ra sự ác ý khi có thể giải thích bằng sự ngu ngốc hoặc vô ý.", example: "Đồng nghiệp không trả lời email: có thể họ bận, không phải cố tình phớt lờ bạn." },
+      { name: "Falsifiability", desc: "Một lý thuyết chỉ có giá trị khoa học nếu có thể bị bác bỏ bằng bằng chứng. (Karl Popper)", example: "Astrology không thể bị bác bỏ → không phải khoa học. Thuyết tiến hóa có thể bị bác bỏ nếu tìm thấy hóa thạch thỏ ở kỷ Cambrian." },
+      { name: "Circle of Competence", desc: "Biết rõ ranh giới kiến thức của mình — quyết định tốt nhất khi nằm trong vùng hiểu biết.", example: "Warren Buffett không đầu tư vào công nghệ trong những năm 90 vì ông không hiểu nó đủ sâu." },
+      { name: "Thought Experiment", desc: "Dùng trí tưởng tượng để khám phá kịch bản giả định, kiểm tra lý thuyết và mở rộng tư duy.", example: "Einstein tưởng tượng cưỡi trên tia sáng → dẫn đến Thuyết Tương Đối Hẹp." },
+      { name: "Reductionism vs Holism", desc: "Reductionism: hiểu phần nhỏ để hiểu toàn thể. Holism: toàn thể lớn hơn tổng các phần.", example: "Y học cổ điển (reductionism) trị bệnh từng cơ quan; Đông y (holism) nhìn cơ thể như hệ thống." },
+      { name: "Abstraction", desc: "Loại bỏ chi tiết không cần thiết để nắm bắt bản chất cốt lõi của vấn đề.", example: "Bản đồ địa hạt London (Harry Beck) loại bỏ khoảng cách thực, chỉ giữ cấu trúc kết nối — dễ dùng hơn nhiều." },
+      { name: "Bayesian Thinking", desc: "Cập nhật niềm tin dựa trên bằng chứng mới — kết hợp prior beliefs với likelihood của dữ liệu.", example: "Test y tế dương tính không có nghĩa bạn bị bệnh — phụ thuộc vào tỷ lệ dương tính giả và tỷ lệ mắc bệnh trong dân số." },
+      { name: "Mental Simulation", desc: "Chạy thử tình huống trong đầu trước khi thực hiện — hình dung các bước và kết quả.", example: "Phi công thực hành trong buồng lái ảo; vận động viên hình dung từng bước của màn trình diễn." },
+    ]
+  },
+  {
+    id: "physics",
+    name: "Vật Lý & Hệ Thống",
+    icon: "⚡",
+    color: "#C0392B",
+    bg: "#E8D5D3",
+    models: [
+      { name: "Critical Mass", desc: "Ngưỡng mà sau đó phản ứng dây chuyền tự duy trì — hệ thống đạt đến điểm bùng nổ.", example: "Mạng xã hội: cần đủ người dùng để tạo giá trị cho người mới tham gia (network effect)." },
+      { name: "Thermodynamics", desc: "Entropy luôn tăng — hệ thống tự nhiên hướng đến hỗn loạn; cần năng lượng để duy trì trật tự.", example: "Tổ chức không được quản lý tốt sẽ tự nhiên trở nên kém hiệu quả và rối loạn theo thời gian." },
+      { name: "Leverage", desc: "Một điểm tựa nhỏ có thể tạo ra lực tác dụng lớn — tìm điểm đòn bẩy để khuếch đại nỗ lực.", example: "Code: viết một hàm dùng được 1000 lần; Vốn: đầu tư sinh lãi; Mạng lưới: một kết nối mở ra nhiều cơ hội." },
+      { name: "Feedback Loops", desc: "Đầu ra của hệ thống trở thành đầu vào — vòng lặp dương khuếch đại, vòng lặp âm ổn định.", example: "Compound interest (dương); Nhiệt độ phòng được điều chỉnh bởi thermostat (âm)." },
+      { name: "Equilibrium", desc: "Hệ thống cân bằng khi lực tác động ngược chiều bằng nhau — nhưng cân bằng có thể ổn định hoặc bất ổn.", example: "Thị trường đạt equilibrium khi cung = cầu; nhưng có thể bị phá vỡ bởi shock bên ngoài." },
+      { name: "Velocity", desc: "Khác với tốc độ, velocity có hướng — tốc độ đúng hướng quan trọng hơn chỉ nhanh.", example: "Startup nhanh nhưng sai hướng tệ hơn startup chậm đúng hướng." },
+      { name: "The Butterfly Effect", desc: "Trong hệ thống phức tạp, thay đổi nhỏ có thể dẫn đến hậu quả lớn và không thể dự đoán.", example: "Một tweet có thể gây khủng hoảng truyền thông; một quyết định nhỏ có thể thay đổi cả cuộc đời." },
+      { name: "Resonance", desc: "Khi tần số tác động trùng với tần số tự nhiên của hệ thống, biên độ dao động khuếch đại mạnh.", example: "Cầu Tacoma Narrows sụp đổ vì gió tạo cộng hưởng; thói quen tốt cộng hưởng với bản sắc cá nhân." },
+      { name: "Breakpoints", desc: "Điểm mà tại đó thêm một tác động nhỏ gây ra thay đổi phi tuyến tính — hệ thống nhảy sang trạng thái mới.", example: "Nhiệt độ nước tăng từ từ đến 100°C rồi đột ngột hóa hơi; sụp đổ niềm tin tương tự." },
+    ]
+  },
+  {
+    id: "biology",
+    name: "Sinh Học & Tiến Hóa",
+    icon: "🌿",
+    color: "#2D5A27",
+    bg: "#D5E8D0",
+    models: [
+      { name: "Natural Selection", desc: "Những đặc điểm giúp sinh tồn và sinh sản được giữ lại — áp dụng cho ý tưởng, doanh nghiệp, thói quen.", example: "Startup: thị trường 'chọn lọc' — business model không phù hợp sẽ bị đào thải." },
+      { name: "Adaptation", desc: "Sinh vật thay đổi theo môi trường — tổ chức và cá nhân cần liên tục thích nghi.", example: "Nokia thống trị điện thoại nhưng không thích nghi với smartphone → sụp đổ." },
+      { name: "Ecosystems", desc: "Hệ sinh thái là mạng lưới phụ thuộc lẫn nhau — loại bỏ một thành phần ảnh hưởng đến toàn bộ.", example: "Loại bỏ sói khỏi Yellowstone → nai sinh sản quá mức → phá hủy thực vật → thay đổi dòng sông." },
+      { name: "Red Queen Effect", desc: "Phải chạy nhanh nhất có thể chỉ để đứng yên tại chỗ — cạnh tranh liên tục giữ nguyên vị trí tương đối.", example: "Trong kinh doanh: phải liên tục cải tiến chỉ để giữ thị phần trong khi đối thủ cũng làm vậy." },
+      { name: "Niching Down", desc: "Chuyên biệt hóa vào một ngách giảm cạnh tranh và tăng khả năng sống sót.", example: "Thay vì cạnh tranh với Amazon, một shop online thành công khi tập trung vào một sản phẩm rất cụ thể." },
+      { name: "Parasitism & Symbiosis", desc: "Quan hệ có thể là đôi bên cùng có lợi (symbiosis) hoặc một bên hưởng lợi từ tổn hại bên kia.", example: "Quan hệ nhà cung cấp-khách hàng: bình thường symbiosis; khi một bên độc quyền có thể trở thành parasitism." },
+      { name: "Homeostasis", desc: "Hệ thống sinh học tự điều chỉnh để duy trì trạng thái ổn định bên trong dù môi trường thay đổi.", example: "Cơ thể duy trì nhiệt độ 37°C; ngân hàng trung ương điều chỉnh lãi suất để ổn định nền kinh tế." },
+      { name: "Genetic Drift", desc: "Thay đổi ngẫu nhiên trong quần thể nhỏ có thể gây ra sự biến đổi lớn — ngẫu nhiên quan trọng hơn ta nghĩ.", example: "Startup nhỏ: một nhân viên nghỉ việc có thể thay đổi hoàn toàn văn hóa công ty." },
+    ]
+  },
+  {
+    id: "decision",
+    name: "Ra Quyết Định",
+    icon: "⚖️",
+    color: "#B8860B",
+    bg: "#F0E8C8",
+    models: [
+      { name: "Regret Minimization", desc: "Tưởng tượng bản thân ở tuổi 80 nhìn lại — quyết định nào sẽ ít hối tiếc nhất?", example: "Jeff Bezos quyết định bỏ việc ngân hàng lương cao để lập Amazon: 'Tôi biết rằng ở tuổi 80 tôi sẽ không hối tiếc vì đã thử.'" },
+      { name: "Opportunity Cost", desc: "Mỗi lựa chọn đều đánh đổi bằng lựa chọn tốt nhất bị bỏ qua — không chỉ chi phí tiền bạc.", example: "Dành 2 giờ xem TV có chi phí cơ hội là học kỹ năng mới, tập thể dục, hoặc gặp gỡ bạn bè." },
+      { name: "Margin of Safety", desc: "Xây dựng bộ đệm an toàn vào mọi quyết định — đừng thiết kế cho điều kiện lý tưởng.", example: "Warren Buffett mua cổ phiếu chỉ khi giá thị trường ≤ 2/3 giá trị thực tính toán được." },
+      { name: "Sunk Cost Fallacy", desc: "Chi phí đã bỏ ra không nên ảnh hưởng đến quyết định tương lai — chỉ nhìn vào chi phí và lợi ích từ đây trở đi.", example: "Tiếp tục xem phim dở chỉ vì đã mua vé; tiếp tục dự án thất bại vì đã đầu tư nhiều tiền." },
+      { name: "Loss Aversion", desc: "Nỗi đau mất mát mạnh hơn niềm vui được lợi gấp đôi — thiên kiến này méo mó quyết định của chúng ta.", example: "Nhà đầu tư giữ cổ phiếu thua lỗ quá lâu vì không muốn 'hiện thực hóa' thua lỗ." },
+      { name: "Probabilistic Thinking", desc: "Nghĩ bằng xác suất thay vì nhị phân — hầu hết kết quả không phải 0% hay 100%.", example: "Thay vì 'dự án này sẽ thành công', hãy hỏi 'xác suất thành công là bao nhiêu và điều gì ảnh hưởng đến nó?'" },
+      { name: "Asymmetric Risk/Reward", desc: "Tìm kiếm những cơ hội có tổn thất giới hạn nhưng lợi ích không giới hạn.", example: "Nassim Taleb: mua options rẻ (mất tối đa phí mua) nhưng có thể lời 100x nếu xảy ra black swan." },
+      { name: "Pre-Mortem", desc: "Trước khi bắt đầu, tưởng tượng dự án đã thất bại và hỏi 'tại sao?' — xác định rủi ro trước.", example: "Trước khi ra mắt sản phẩm, đội ngồi lại và mỗi người viết lý do tại sao sản phẩm có thể thất bại." },
+      { name: "Reversibility", desc: "Phân biệt quyết định một chiều (không thể quay lại) và hai chiều (có thể điều chỉnh) — tốc độ quyết định phụ thuộc vào điều này.", example: "Jeff Bezos: Loại 1 (one-way door) cần thận trọng; Loại 2 (two-way door) nên quyết định nhanh và thử nghiệm." },
+      { name: "Satisficing", desc: "Chọn giải pháp 'đủ tốt' thay vì mất thời gian tìm kiếm 'tối ưu' — đặc biệt khi chi phí tìm kiếm cao.", example: "Herbert Simon: không ai tối ưu hóa hoàn toàn trong thực tế; chúng ta thỏa mãn khi đạt ngưỡng chấp nhận được." },
+      { name: "Decision Matrix", desc: "Đánh giá nhiều lựa chọn theo nhiều tiêu chí có trọng số — hệ thống hóa quyết định phức tạp.", example: "Chọn việc làm: tiêu chí (lương, văn hóa, phát triển, địa điểm) × trọng số × điểm từng tiêu chí." },
+    ]
+  },
+  {
+    id: "psychology",
+    name: "Tâm Lý Học",
+    icon: "🧠",
+    color: "#6B3A8C",
+    bg: "#E5D5F0",
+    models: [
+      { name: "Cognitive Biases", desc: "Những sai lệch hệ thống trong tư duy — não bộ dùng shortcuts (heuristics) dẫn đến phán đoán sai.", example: "Confirmation bias: chỉ tìm bằng chứng ủng hộ quan điểm đã có; Anchoring: bị ảnh hưởng bởi con số đầu tiên nghe thấy." },
+      { name: "Incentive Structures", desc: "Hành vi của con người được định hình bởi incentives — hiểu incentives để dự đoán hành vi.", example: "Charlie Munger: 'Hãy chỉ cho tôi incentive và tôi sẽ chỉ cho bạn kết quả.' Bác sĩ được trả theo số thủ thuật sẽ làm nhiều thủ thuật hơn." },
+      { name: "Social Proof", desc: "Người ta nhìn vào hành vi của người khác để xác định hành vi đúng — đặc biệt trong tình huống không chắc chắn.", example: "Nhà hàng đông khách được cho là ngon hơn; review 5 sao thuyết phục hơn quảng cáo." },
+      { name: "Availability Heuristic", desc: "Đánh giá xác suất dựa trên mức độ dễ nghĩ đến — những thứ dễ nhớ được cho là phổ biến hơn.", example: "Sau vụ tai nạn máy bay lên báo, người ta sợ đi máy bay hơn dù thống kê vẫn an toàn hơn xe hơi." },
+      { name: "Dunning-Kruger Effect", desc: "Người kém năng lực thường tự đánh giá bản thân quá cao; người giỏi thường tự đánh giá quá thấp.", example: "Người mới học trading tự tin thái quá; chuyên gia kinh tế e dè hơn khi đưa dự báo." },
+      { name: "Ego Depletion", desc: "Ý chí là tài nguyên có hạn — ra nhiều quyết định khiến tự kiểm soát sau đó yếu đi.", example: "Obama và Zuckerberg mặc đồ đơn giản mỗi ngày để tránh mệt mỏi quyết định về trang phục." },
+      { name: "Narrative Fallacy", desc: "Não bộ tự tạo câu chuyện có nghĩa từ sự kiện ngẫu nhiên — chúng ta yêu chuỗi nhân quả hơn ngẫu nhiên.", example: "Sau khi startup thành công, ta kể câu chuyện về tầm nhìn và quyết định đúng đắn — nhưng may mắn cũng đóng vai trò lớn." },
+      { name: "Reciprocity", desc: "Xu hướng đáp lại khi ai đó làm điều gì đó cho mình — bản năng xã hội cơ bản của con người.", example: "Free sample tại siêu thị → khách hàng cảm thấy có nghĩa vụ mua hàng." },
+      { name: "Scarcity Effect", desc: "Vật hiếm có được coi trọng hơn — khan hiếm (thật hoặc nhân tạo) kích thích ham muốn.", example: "'Chỉ còn 3 phòng!' trên booking.com tạo urgency; limited edition tăng giá trị cảm nhận." },
+      { name: "Flow State", desc: "Trạng thái tập trung hoàn toàn khi thách thức và kỹ năng cân bằng — đỉnh cao của năng suất và hạnh phúc.", example: "Mihaly Csikszentmihalyi: âm nhạc gia chơi khó vừa đủ, game có độ khó tăng dần → tạo flow." },
+      { name: "The Halo Effect", desc: "Ấn tượng tích cực về một đặc điểm lan sang các đặc điểm khác — CEO đẹp trai bị cho là có năng lực hơn.", example: "Sản phẩm Apple được cho là dễ dùng, đẹp, cao cấp — tất cả dựa trên một thiết kế đẹp ban đầu." },
+      { name: "Locus of Control", desc: "Niềm tin về mức độ kiểm soát cuộc sống của bản thân — internal locus (tôi tạo kết quả) vs external (hoàn cảnh quyết định).", example: "Người có internal locus of control có xu hướng kiên trì và thành công hơn khi đối mặt với thất bại." },
+    ]
+  },
+  {
+    id: "economics",
+    name: "Kinh Tế & Tài Chính",
+    icon: "📊",
+    color: "#2E7D6B",
+    bg: "#D0EBE5",
+    models: [
+      { name: "Supply & Demand", desc: "Giá cả được xác định bởi sự gặp nhau của cung và cầu — nền tảng của kinh tế học.", example: "Giá đất tăng khi cầu (dân số, thu nhập) tăng nhưng cung (đất đai) cố định." },
+      { name: "Comparative Advantage", desc: "Chuyên môn hóa vào thứ bạn làm tốt hơn người khác (dù tổng thể kém hơn) và trao đổi.", example: "Một bác sĩ gõ phím nhanh hơn thư ký vẫn nên thuê thư ký để dành thời gian khám bệnh." },
+      { name: "Game Theory", desc: "Nghiên cứu quyết định tương tác chiến lược — kết quả phụ thuộc vào hành động của người khác.", example: "Prisoner's Dilemma: hai nghi phạm riêng biệt đều chọn phản bội dù cùng im lặng tốt hơn cho cả hai." },
+      { name: "Compounding", desc: "Lợi tức trên lợi tức — ảnh hưởng nhỏ tích lũy trở thành ảnh hưởng khổng lồ theo thời gian.", example: "Warren Buffett: 99% tài sản kiếm được sau tuổi 50. $1 tăng 10%/năm → $117 sau 50 năm." },
+      { name: "Moral Hazard", desc: "Khi được bảo vệ khỏi rủi ro, người ta có xu hướng chấp nhận rủi ro cao hơn.", example: "Ngân hàng 'too big to fail': biết được chính phủ cứu nên chấp nhận rủi ro cao hơn." },
+      { name: "Price Elasticity", desc: "Mức độ thay đổi cầu khi giá thay đổi — inelastic (ít thay đổi) vs elastic (thay đổi nhiều).", example: "Xăng dầu và thuốc: demand inelastic (vẫn phải mua dù giá tăng). Hàng xa xỉ: elastic." },
+      { name: "Tragedy of the Commons", desc: "Tài nguyên chung bị khai thác quá mức khi mỗi cá nhân hành động theo lợi ích của mình.", example: "Đánh bắt cá quá mức; ô nhiễm không khí; traffic jams khi mọi người đều lái xe riêng." },
+      { name: "Network Effects", desc: "Giá trị sản phẩm/dịch vụ tăng khi có thêm người dùng — tạo ra winner-take-all dynamics.", example: "Điện thoại đầu tiên không có giá trị; khi nhiều người có điện thoại, mỗi điện thoại thêm tăng giá trị toàn mạng." },
+      { name: "Gresham's Law", desc: "'Tiền xấu đuổi tiền tốt' — trong một hệ thống, phần tử kém chất lượng đẩy phần tử tốt ra ngoài.", example: "Khi có đồng tiền mất giá, người ta giữ đồng tốt và tiêu đồng xấu → đồng tốt biến mất khỏi lưu thông." },
+      { name: "Creative Destruction", desc: "Joseph Schumpeter: đổi mới phá hủy cái cũ để tạo ra cái mới — động lực của chủ nghĩa tư bản.", example: "Xe hơi phá hủy ngành xe ngựa; smartphone phá hủy máy ảnh, GPS, máy MP3, điện thoại cố định." },
+      { name: "Diminishing Returns", desc: "Thêm đầu vào sau một điểm nhất định mang lại lợi ích ngày càng ít hơn.", example: "Học 1 giờ → cải thiện nhiều. Học 8 giờ liên tiếp → mỗi giờ thêm lợi ích giảm dần. Nghỉ ngơi cần thiết." },
+      { name: "Deadweight Loss", desc: "Tổn thất phúc lợi xã hội khi thị trường không đạt equilibrium — thường do thuế, trợ cấp, hoặc monopoly.", example: "Giá trần rent control: một số người được thuê rẻ hơn, nhưng thiếu nhà cho nhiều người hơn → tổn thất xã hội." },
+    ]
+  },
+  {
+    id: "strategy",
+    name: "Chiến Lược & Kinh Doanh",
+    icon: "♟️",
+    color: "#A0522D",
+    bg: "#EDD9CC",
+    models: [
+      { name: "Competitive Moat", desc: "Lợi thế cạnh tranh bền vững bảo vệ doanh nghiệp — thương hiệu, chi phí chuyển đổi, network effects, chi phí thấp.", example: "Coca-Cola: thương hiệu 130 năm. Amazon: chi phí logistics. Facebook: 3 tỷ người dùng tạo network effect." },
+      { name: "Blue Ocean Strategy", desc: "Tạo ra thị trường mới không có cạnh tranh thay vì cạnh tranh trong thị trường đỏ máu.", example: "Cirque du Soleil: kết hợp xiếc và nhạc kịch → thị trường hoàn toàn mới, không cạnh tranh với xiếc truyền thống." },
+      { name: "Product-Market Fit", desc: "Sản phẩm đáp ứng nhu cầu thực sự của thị trường — điều kiện cần thiết trước khi mở rộng quy mô.", example: "Marc Andreessen: PMF khi người dùng tự nhiên giới thiệu sản phẩm cho người khác và thất vọng nếu mất đi." },
+      { name: "First-Mover Advantage", desc: "Ưu thế của người vào thị trường đầu tiên — nhưng không phải lúc nào cũng bền vững.", example: "Amazon vào e-commerce sớm; nhưng Google+ đến sau Facebook và thất bại. First mover không đảm bảo thắng." },
+      { name: "Disruption Theory", desc: "Clayton Christensen: sản phẩm đơn giản hơn, rẻ hơn tấn công từ phía dưới và dần chiếm thị trường.", example: "iPhone disrupts BlackBerry; Netflix disrupts Blockbuster; Grab disrupts taxi truyền thống." },
+      { name: "Power Laws", desc: "Phân phối đầu ra không đều — một số ít yếu tố tạo ra phần lớn kết quả (Pareto principle 80/20).", example: "Trong VC: 1-2 khoản đầu tư trong danh mục 30 tạo ra 90% lợi nhuận. Trong sales: 20% khách hàng tạo 80% doanh thu." },
+      { name: "The Innovator's Dilemma", desc: "Công ty đang thành công khó đổi mới đột phá vì không muốn hủy hoại mô hình kinh doanh hiện tại.", example: "Kodak phát minh ra máy ảnh kỹ thuật số năm 1975 nhưng chôn vùi vì sợ hủy hoại mảng phim ảnh." },
+      { name: "Economies of Scale", desc: "Chi phí trung bình giảm khi sản lượng tăng — lợi thế cạnh tranh tự nhiên cho doanh nghiệp lớn.", example: "Amazon có thể bán rẻ hơn vì chi phí cố định (warehouse, logistics) phân bổ trên hàng triệu sản phẩm." },
+      { name: "Switching Costs", desc: "Chi phí (thời gian, tiền, công sức) khi chuyển sang sản phẩm/dịch vụ khác — tạo lock-in cho khách hàng.", example: "Microsoft Office: dữ liệu, kỹ năng, quy trình đã gắn chặt → chi phí chuyển sang Google Docs rất cao." },
+      { name: "Core Competency", desc: "Năng lực cốt lõi tạo ra lợi thế cạnh tranh — tập trung vào những gì bạn làm tốt nhất.", example: "Apple: thiết kế và UX. FedEx: logistics đúng giờ. Pixar: storytelling và công nghệ animation." },
+    ]
+  },
+  {
+    id: "learning",
+    name: "Học Tập & Phát Triển",
+    icon: "📚",
+    color: "#1B6B8C",
+    bg: "#C8E4F0",
+    models: [
+      { name: "Feynman Technique", desc: "Giải thích khái niệm đơn giản như đang dạy trẻ em — nếu không giải thích được, bạn chưa thực sự hiểu.", example: "Einstein: 'Nếu bạn không thể giải thích đơn giản, bạn chưa hiểu đủ rõ.'" },
+      { name: "Deliberate Practice", desc: "Không phải luyện tập nhiều mà là luyện tập đúng cách — tập trung vào điểm yếu, có phản hồi tức thì.", example: "Anders Ericsson: sau 10.000 giờ deliberate practice (không phải casual practice) mới đạt chuyên gia thực sự." },
+      { name: "Spaced Repetition", desc: "Ôn tập khi sắp quên — khoảng cách giữa các lần ôn tăng dần, tối ưu hóa trí nhớ dài hạn.", example: "Anki cards: ngày 1, 3, 7, 14, 30… → tạo long-term memory hiệu quả hơn ôn tập liên tục." },
+      { name: "Growth Mindset", desc: "Carol Dweck: tin rằng năng lực có thể phát triển qua nỗ lực — đối lập với fixed mindset.", example: "Fixed: 'Tôi không giỏi toán.' Growth: 'Tôi chưa giỏi toán — nhưng có thể học được.'" },
+      { name: "Transfer of Learning", desc: "Áp dụng kiến thức từ lĩnh vực này sang lĩnh vực khác — cross-domain thinking là dấu hiệu của trí tuệ cao.", example: "Charlie Munger học từ vật lý, sinh học, tâm lý học rồi áp dụng vào đầu tư — tạo lưới tư duy đa lĩnh vực." },
+      { name: "The Protégé Effect", desc: "Dạy người khác là cách học hiệu quả nhất — khi dạy, bạn phải tổ chức và hiểu rõ kiến thức hơn.", example: "'Learning by teaching' — sinh viên giải thích cho nhau hiểu bài hơn là chỉ nghe giáo viên." },
+      { name: "Zone of Proximal Development", desc: "Lev Vygotsky: học tốt nhất trong vùng vừa đủ khó — không quá dễ (chán) cũng không quá khó (bỏ cuộc).", example: "Game design dùng điều này: tăng độ khó dần dần giữ người chơi trong trạng thái flow và engaged." },
+      { name: "Interleaving", desc: "Xen kẽ nhiều chủ đề khi học thay vì học từng khối riêng biệt — khó hơn nhưng nhớ lâu hơn.", example: "Học toán: thay vì giải 30 bài cùng loại, xen kẽ các loại khác nhau → nhớ lâu hơn 50%." },
+    ]
+  },
+  {
+    id: "communication",
+    name: "Giao Tiếp & Ảnh Hưởng",
+    icon: "💬",
+    color: "#8C3A3A",
+    bg: "#F0D0D0",
+    models: [
+      { name: "Minto Pyramid Principle", desc: "Trình bày kết luận trước, sau đó hỗ trợ bằng lý lẽ và dữ liệu — deductive top-down communication.", example: "Email: 'Chúng ta nên chọn nhà cung cấp A. Vì: 1) giá tốt hơn 20%, 2) giao hàng nhanh hơn, 3) hỗ trợ tốt hơn.'" },
+      { name: "Steel Man", desc: "Xây dựng phiên bản mạnh nhất của lập luận đối phương trước khi phản biện — ngược với straw man.", example: "Thay vì bác bỏ quan điểm yếu nhất của đối phương, tìm hiểu và phản bác lập luận thuyết phục nhất của họ." },
+      { name: "Non-Violent Communication", desc: "Marshall Rosenberg: tách quan sát khỏi đánh giá, diễn đạt cảm xúc và nhu cầu, đưa ra yêu cầu cụ thể.", example: "'Khi báo cáo nộp trễ (quan sát), tôi cảm thấy lo lắng (cảm xúc) vì cần dữ liệu để trình bày (nhu cầu). Bạn có thể gửi trước 5pm không? (yêu cầu)'" },
+      { name: "Ethos, Pathos, Logos", desc: "Aristotle: ba trụ cột của thuyết phục — uy tín (ethos), cảm xúc (pathos), và lý lẽ (logos).", example: "Quảng cáo hiệu quả thường dùng cả ba: chuyên gia (ethos) + câu chuyện xúc động (pathos) + dữ liệu (logos)." },
+      { name: "Active Listening", desc: "Lắng nghe để hiểu, không phải để phản hồi — tóm tắt, đặt câu hỏi, xác nhận cảm xúc của người nói.", example: "Thay vì chuẩn bị câu trả lời khi người khác nói, tập trung hoàn toàn vào ý họ → hiểu sâu hơn, quan hệ tốt hơn." },
+      { name: "Framing Effect", desc: "Cách đóng khung thông tin ảnh hưởng đến cách hiểu và quyết định — cùng thực tế, frame khác nhau.", example: "'90% sống sót' vs '10% tử vong' — cùng một thực tế nhưng phần lớn người chọn ca phẫu thuật hơn với frame đầu." },
+      { name: "Signaling Theory", desc: "Hành động truyền đạt thông tin về người thực hiện — một số tín hiệu đáng tin khi tốn kém để làm giả.", example: "Bằng cấp đại học không chỉ để học — còn là costly signal về năng lực, kỷ luật, và khả năng hoàn thành." },
+      { name: "SCQA Framework", desc: "Situation → Complication → Question → Answer — cấu trúc narrative thuyết phục cho presentations.", example: "S: Doanh thu ổn định. C: Đối thủ mới vừa ra mắt sản phẩm tương tự giá rẻ hơn 30%. Q: Chúng ta nên làm gì? A: Chiến lược phản ứng gồm 3 bước..." },
+    ]
+  }
+];
+
+// ── BUILD DOM ──────────────────────────────────────────────────────────────────
+const mainEl = document.getElementById('mainContent');
+const filterPills = document.getElementById('filterPills');
+const searchInput = document.getElementById('searchInput');
+const shownCountEl = document.getElementById('shownCount');
+const emptyEl = document.getElementById('emptyState');
+
+let activeFilter = 'all';
+let searchQuery = '';
+
+// Build filter pills
+CATEGORIES.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'pill';
+  btn.dataset.cat = cat.id;
+  btn.textContent = `${cat.icon} ${cat.name}`;
+  filterPills.appendChild(btn);
+});
+
+// Build sections
+CATEGORIES.forEach(cat => {
+  const section = document.createElement('section');
+  section.className = 'category-section';
+  section.dataset.catId = cat.id;
+
+  const header = document.createElement('div');
+  header.className = 'category-header';
+  header.innerHTML = `
+    <div class="cat-icon" style="background:${cat.bg};color:${cat.color}">${cat.icon}</div>
+    <h2 class="category-name" style="color:${cat.color}">${cat.name}</h2>
+    <span class="category-count">${cat.models.length} models</span>
+  `;
+
+  const grid = document.createElement('div');
+  grid.className = 'models-grid';
+
+  cat.models.forEach(model => {
+    const card = document.createElement('div');
+    card.className = 'model-card';
+    card.style.color = cat.color;
+    card.dataset.name = model.name.toLowerCase();
+    card.dataset.desc = model.desc.toLowerCase();
+    card.dataset.cat = cat.id;
+    card.innerHTML = `
+      <div class="model-name">${model.name}</div>
+      <div class="model-desc">${model.desc}</div>
+      <span class="model-tag" style="background:${cat.bg};color:${cat.color}">${cat.name}</span>
+    `;
+    card.addEventListener('click', () => openModal(model, cat));
+    grid.appendChild(card);
+  });
+
+  section.appendChild(header);
+  section.appendChild(grid);
+  mainEl.appendChild(section);
+});
+
+// ── FILTER & SEARCH ─────────────────────────────────────────────────────────
+function applyFilters() {
+  const q = searchQuery.trim().toLowerCase();
+  let shown = 0;
+
+  document.querySelectorAll('.category-section').forEach(section => {
+    const catId = section.dataset.catId;
+    const catMatch = activeFilter === 'all' || activeFilter === catId;
+    let catHasVisible = false;
+
+    section.querySelectorAll('.model-card').forEach(card => {
+      const nameMatch = card.dataset.name.includes(q);
+      const descMatch = card.dataset.desc.includes(q);
+      const catCardMatch = card.dataset.cat === catId;
+      const visible = catMatch && catCardMatch && (q === '' || nameMatch || descMatch);
+      card.style.display = visible ? '' : 'none';
+      if (visible) { shown++; catHasVisible = true; }
+    });
+
+    section.style.display = catHasVisible ? '' : 'none';
+  });
+
+  shownCountEl.textContent = shown;
+  emptyEl.classList.toggle('show', shown === 0);
+}
+
+filterPills.addEventListener('click', e => {
+  const pill = e.target.closest('.pill');
+  if (!pill) return;
+  activeFilter = pill.dataset.cat;
+  document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p === pill));
+  applyFilters();
+});
+
+searchInput.addEventListener('input', e => {
+  searchQuery = e.target.value;
+  applyFilters();
+});
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+const overlay = document.getElementById('modalOverlay');
+const modalBodyEl = document.getElementById('modalBody');
+
+function openModal(model, cat) {
+  modalBodyEl.innerHTML = `
+    <div class="modal-cat-badge" style="background:${cat.bg};color:${cat.color}">${cat.icon} ${cat.name}</div>
+    <h2 class="modal-title">${model.name}</h2>
+    <p class="modal-body">${model.desc}</p>
+    <div class="modal-example">
+      <strong>Ví dụ thực tế</strong>
+      ${model.example}
+    </div>
+  `;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Total count
+const total = CATEGORIES.reduce((s, c) => s + c.models.length, 0);
+document.getElementById('totalCount').textContent = total;
+document.getElementById('shownCount').textContent = total;
+document.querySelector('.result-count').innerHTML = `Hiển thị <span id="shownCount">${total}</span> / ${total} models`;
+</script>
+</body>
+</html>
